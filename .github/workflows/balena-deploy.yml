@@ -47,7 +47,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        
+      - name: Authenticate with GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build Container
         id: build
@@ -56,10 +57,13 @@ jobs:
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
           ./balena-cli/balena build --fleet "$repo_name"
-          ls -la /home/runner/.balena
-          tree /home/runner/.balena
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Push updated cache to GitHub Container Registry
+        run: |
+          docker tag balena-cache:latest ghcr.io/${{ github.repository }}/balena-cache:latest
+          docker push ghcr.io/${{ github.repository }}/balena-cache:latest
 
       - name: Deploy to balenaCloud
         id: deploy
