@@ -44,6 +44,7 @@ jobs:
     - name: Build and deploy to BalenaCloud
       run: |
         repo_name=$(basename "${GITHUB_REPOSITORY}")
+        echo "Using fleet $repo_name"
         ./balena-cli/balena build --fleet "$repo_name"
         ./balena-cli/balena deploy "$repo_name"
       env:
