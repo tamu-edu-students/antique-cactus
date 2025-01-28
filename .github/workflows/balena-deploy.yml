@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -21,14 +21,12 @@ jobs:
         echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
         echo "Using Balena CLI $tag_name"
 
-      # env:
-      #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Download and unzip Balena CLI
       run: |
         tag_name=${{ steps.get_version.outputs.tag_name }}
         tag_name_lower=$(echo "$tag_name" | tr '[:upper:]' '[:lower:]')
-        url="https://github.com/balena-io/balena-cli/releases/download/$tag_name_lower/balena-cli-$tag_name_lower-macOS-arm64-standalone.zip"
+        url="https://github.com/balena-io/balena-cli/releases/download/$tag_name_lower/balena-cli-$tag_name_lower-linux-x64-standalone.zip"
 
         wget "$url" -O balena-cli.zip
         unzip balena-cli.zip -d .
@@ -45,7 +43,7 @@ jobs:
       run: |
         repo_name=$(basename "${GITHUB_REPOSITORY}")
         echo "Using fleet $repo_name"
-        ./balena-cli/balena build --fleet "$repo_name" --debug
+        ./balena-cli/balena build --fleet "$repo_name" --debug --emulated
         ./balena-cli/balena deploy "$repo_name"
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
