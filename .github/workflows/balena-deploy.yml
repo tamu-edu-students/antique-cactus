@@ -47,8 +47,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Authenticate with GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build Container
         id: build
@@ -56,20 +60,18 @@ jobs:
           repo_name=$(basename "${GITHUB_REPOSITORY}")
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
-          ./balena-cli/balena build --fleet "$repo_name"
+          ./balena-cli/balena build --fleet "$repo_name" --tag "ghcr.io/${{ github.repository }}/balena-cache:latest"
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Push updated cache to GitHub Container Registry
         run: |
-          docker tag balena-cache:latest ghcr.io/${{ github.repository }}/balena-cache:latest
           docker push ghcr.io/${{ github.repository }}/balena-cache:latest
 
       - name: Deploy to balenaCloud
         id: deploy
         run: |
           repo_name=${{ steps.build.outputs.repo_name }}
-          docker tag ghcr.io/${{ github.repository }}/balena-cache:latest balena-cache:latest || true
           ./balena-cli/balena deploy "$repo_name" | tee build_output.txt
           release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
           echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
