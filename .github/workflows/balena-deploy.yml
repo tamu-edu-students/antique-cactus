@@ -56,6 +56,7 @@ jobs:
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
           ./balena-cli/balena build --fleet "$repo_name"
+          ls -la ~/.balena/cache
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
