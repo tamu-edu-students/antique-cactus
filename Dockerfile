@@ -34,7 +34,7 @@
 FROM balenalib/%%BALENA_ARCH%%-node:20-build AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --production --unsafe-perm --no-audit && npm cache verify
+RUN npm install --omit=dev --unsafe-perm --no-audit && npm cache verify
 # COPY . ./
 # RUN npm run build
 
