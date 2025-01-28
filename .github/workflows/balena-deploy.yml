@@ -64,7 +64,6 @@ jobs:
         run: |
           repo_name=${{ steps.build.outputs.repo_name }}
           ./balena-cli/balena deploy "$repo_name" | tee build_output.txt
-          grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt
           release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
           echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
         env:
@@ -73,7 +72,8 @@ jobs:
       - name: Output deployment details
         run: |
           RELEASES=$(./balena-cli/balena release list ${{ steps.build.outputs.repo_name }} --json)
-          RELEASE_ID=$(echo $RELEASES | jq -r --arg COMMIT "${{ steps.build.outputs.release_hash }}" '.[] | select(.commit == $COMMIT) | .id')
-          echo "https://dashboard.balena-cloud.com/fleets/${{ steps.get_fleet_id.outputs.fleet_id }}/releases/$RELEASE_ID"
+          RELEASE_ID=$(echo $RELEASES | jq -r --arg COMMIT "${{ steps.deploy.outputs.release_hash }}" '.[] | select(.commit == $COMMIT) | .id')
+          echo "# Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "[balenaCloud Dashboard Release](https://dashboard.balena-cloud.com/fleets/${{ steps.get_fleet_id.outputs.fleet_id }}/releases/$RELEASE_ID)" >> $GITHUB_STEP_SUMMARY
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
