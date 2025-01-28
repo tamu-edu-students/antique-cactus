@@ -55,9 +55,7 @@ jobs:
           repo_name=$(basename "${GITHUB_REPOSITORY}")
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
-          ./balena-cli/balena build --fleet "$repo_name" | tee build_output.txt
-          release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
-          echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
+          ./balena-cli/balena build --fleet "$repo_name"
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
@@ -65,7 +63,10 @@ jobs:
         id: deploy
         run: |
           repo_name=${{ steps.build.outputs.repo_name }}
-          ./balena-cli/balena deploy "$repo_name"
+          ./balena-cli/balena deploy "$repo_name" | tee build_output.txt
+          grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt
+          release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
+          echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
