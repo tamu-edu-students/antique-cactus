@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     steps:
     - name: Checkout code
@@ -39,11 +39,20 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and deploy to BalenaCloud
+    - name: Build Container
+      id: build
       run: |
         repo_name=$(basename "${GITHUB_REPOSITORY}")
+        echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
         echo "Using fleet $repo_name"
-        ./balena-cli/balena build --fleet "$repo_name" --debug --emulated
+        ./balena-cli/balena build --fleet "$repo_name" --debug
+      env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
+
+    - name: Deploy to balenaCloud
+      id: deploy
+      run: |
+        repo_name=${{ steps.build.outputs.repo_name }}
         ./balena-cli/balena deploy "$repo_name"
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
