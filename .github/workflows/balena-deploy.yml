@@ -29,7 +29,7 @@ jobs:
         url="https://github.com/balena-io/balena-cli/releases/download/$tag_name_lower/balena-cli-$tag_name_lower-linux-x64-standalone.zip"
 
         wget "$url" -O balena-cli.zip
-        unzip balena-cli.zip -d balena-cli
+        unzip balena-cli.zip -d .
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
