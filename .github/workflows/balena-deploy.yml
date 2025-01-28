@@ -12,14 +12,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      
-    - name: Install jq
-      run: brew install jq
 
     - name: Get latest Balena CLI version
       id: get_version
       run: |
         latest_release=$(curl -s https://api.github.com/repos/balena-io/balena-cli/releases/latest)
+        echo "$latest_release"
         tag_name=$(echo "$latest_release" | jq -r .tag_name)
         echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
         echo "Using Balena CLI $tag_name"
