@@ -38,13 +38,26 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get fleet ID
+        id: get_fleet_id
+        run: |
+          FLEETS=$(./balena-cli/balena fleet list -j)
+          FLEET_ID=$(echo $FLEETS | jq -r --arg REPO_NAME "antique-cactus" '.[] | select(.app_name == $REPO_NAME) | .id')
+          echo "fleet_id=$FLEET_ID" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        
+
       - name: Build Container
         id: build
         run: |
           repo_name=$(basename "${GITHUB_REPOSITORY}")
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
-          ./balena-cli/balena build --fleet "$repo_name"
+          ./balena-cli/balena build --fleet "$repo_name" | tee build_output.txt
+          release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
+          echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
@@ -53,5 +66,13 @@ jobs:
         run: |
           repo_name=${{ steps.build.outputs.repo_name }}
           ./balena-cli/balena deploy "$repo_name"
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Output deployment details
+        run: |
+          RELEASES=$(./balena-cli/balena release list ${{ steps.build.outputs.repo_name }} --json)
+          RELEASE_ID=$(echo $RELEASES | jq -r --arg COMMIT "${{ steps.build.outputs.release_hash }}" '.[] | select(.commit == $COMMIT) | .id')
+          echo "https://dashboard.balena-cloud.com/fleets/${{ steps.get_fleet_id.outputs.fleet_id }}/releases/$RELEASE_ID"
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
