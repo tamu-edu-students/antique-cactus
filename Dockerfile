@@ -31,7 +31,7 @@
 
 
 # Stage 1: Build
-FROM balenalib/%%BALENA_ARCH%%-node:20-build AS builder
+FROM balenalib/aarch64-node:20-build AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev --unsafe-perm --no-audit && npm cache verify
@@ -39,7 +39,7 @@ RUN npm install --omit=dev --unsafe-perm --no-audit && npm cache verify
 # RUN npm run build
 
 # Stage 2: Run
-FROM balenalib/%%BALENA_ARCH%%-node:20-run
+FROM balenalib/aarch64-node:20-run
 WORKDIR /app
 COPY . ./
 # COPY --from=builder /app/package*.json ./
