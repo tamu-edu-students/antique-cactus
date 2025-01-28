@@ -1,0 +1,48 @@
+name: Deploy to BalenaCloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Get latest Balena CLI version
+      id: get_version
+      run: |
+        latest_release=$(curl -s https://api.github.com/repos/balena-io/balena-cli/releases/latest)
+        tag_name=$(echo "$latest_release" | jq -r .tag_name)
+        echo "::set-output name=tag_name::$tag_name"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Download and unzip Balena CLI
+      run: |
+        tag_name=${{ steps.get_version.outputs.tag_name }}
+        tag_name_lower=$(echo "$tag_name" | tr '[:upper:]' '[:lower:]')
+        url="https://github.com/balena-io/balena-cli/releases/download/$tag_name_lower/balena-cli-$tag_name_lower-linux-x64-standalone.zip"
+
+        wget "$url" -O balena-cli.zip
+        unzip balena-cli.zip -d balena-cli
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Login to BalenaCloud
+      run: |
+        ./balena-cli/balena login --token "${{ secrets.BALENA_TOKEN }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and deploy to BalenaCloud
+      run: |
+        repo_name=$(basename "${GITHUB_REPOSITORY}")
+        ./balena-cli/balena build --fleet "$repo_name"
+        ./balena-cli/balena deploy "$repo_name"
+      env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
