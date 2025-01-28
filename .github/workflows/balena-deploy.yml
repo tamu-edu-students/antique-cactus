@@ -17,7 +17,9 @@ jobs:
       id: get_version
       run: |
         latest_release=$(curl -s https://api.github.com/repos/balena-io/balena-cli/releases/latest)
-        echo "tag_name=$(echo "$latest_release" | jq -r .tag_name)" >> $GITHUB_OUTPUT
+        tag_name=$(echo "$latest_release" | jq -r .tag_name)
+        echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+        echo "Using Balena CLI $tag_name"
 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
