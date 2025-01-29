@@ -121,7 +121,7 @@ jobs:
       - name: Deploy to balenaCloud
         id: deploy
         run: |
-          repo_name=${{ steps.build.outputs.repo_name }}
+          repo_name=$(basename "${GITHUB_REPOSITORY}")
           ./balena-cli/balena deploy "$repo_name" ghcr.io/${{ github.repository }}/composite:latest | tee build_output.txt
           release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
           echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
