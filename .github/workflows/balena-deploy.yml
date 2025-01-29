@@ -54,13 +54,22 @@ jobs:
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
 
+      - name: Create Registry Secrets File
+        id: repo_secrets_file
+        run: |
+          cat > secrets.yml <<EOF
+          ghcr.io:
+            username: "${{ github.actor }}"
+            password: "${{ secrets.GITHUB_TOKEN }}"
+          EOF
+
       - name: Build Container
         id: build
         run: |
           repo_name=$(basename "${GITHUB_REPOSITORY}")
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
-          ./balena-cli/balena build --fleet "$repo_name" --tag "balena-output-image"
+          ./balena-cli/balena build --fleet "$repo_name" --tag "balena-output-image" --registry-secrets secrets.yml --cache-from ghcr.io/${{ github.repository }}/balena-cache:latest
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
