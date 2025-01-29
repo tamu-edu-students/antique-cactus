@@ -63,6 +63,11 @@ jobs:
         continue-on-error: true
         with:
           dockerfile: Dockerfile
+
+      - name: Capture Step Index
+        run: |
+          STEP_INDEX=$(grep -n "Run $GITHUB_ACTION" "$GITHUB_ACTION_PATH" | cut -d: -f1)
+          echo "Step Index: $STEP_INDEX"
           
       - name: Get Dockerfile Reference
         id: precommit_docker_ref
