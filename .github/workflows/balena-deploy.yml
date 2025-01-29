@@ -66,7 +66,7 @@ jobs:
 
       - name: Push updated cache to GitHub Container Registry
         run: |
-          image=$(docker images --format json | jq 'select(.Tag == "balena-output-image").Repository')
+          image=$(docker images --format json | jq -r 'select(.Tag == "balena-output-image").Repository')
           docker tag $image:balena-output-image ghcr.io/${{ github.repository }}/balena-cache:latest
           docker push ghcr.io/${{ github.repository }}/balena-cache:latest
 
