@@ -105,3 +105,4 @@ jobs:
           echo "[balenaCloud Dashboard Release](https://dashboard.balena-cloud.com/fleets/${{ steps.get_fleet_id.outputs.fleet_id }}/releases/$RELEASE_ID)" >> $GITHUB_STEP_SUMMARY
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
+
