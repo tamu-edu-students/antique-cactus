@@ -27,14 +27,15 @@ jobs:
           extra_args: node --all-files
           
       - name: Report Node Status # You would run your tests before this using the output to set state/desc
-        uses: clstrickland/create-status-check@main
+        uses: hkusu/status-create-action@v1.0.1
         with:
-          authToken: ${{secrets.GITHUB_TOKEN}}
+          # authToken: ${{secrets.GITHUB_TOKEN}}
           context: 'JS Lint'
-          description: 'Tested'
+          description: ${{ steps.precommit_node.outcome }}
           state: ${{ steps.precommit_node.outcome }}
           sha: ${{github.event.pull_request.head.sha || github.sha}}
-      
+          target-url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.job-id.outputs.job-id }}#step:7:0"
+
       
       
       
@@ -49,14 +50,15 @@ jobs:
           extra_args: docker-compose --all-files
           
       - name: Report Docker Compose Status # You would run your tests before this using the output to set state/desc
-        uses: clstrickland/create-status-check@main
+        uses: hkusu/status-create-action@v1.0.1
         with:
-          authToken: ${{secrets.GITHUB_TOKEN}}
+          # authToken: ${{secrets.GITHUB_TOKEN}}
           context: 'Docker Compose Lint'
-          description: 'Tested'
+          description: ${{ steps.precommit_docker_compose.outcome }}
           state: ${{ steps.precommit_docker_compose.outcome }}
           sha: ${{github.event.pull_request.head.sha || github.sha}}
-      
+          target-url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.job-id.outputs.job-id }}#step:9:0"
+
 
       - uses: hadolint/hadolint-action@v3.1.0
         id: precommit_docker
@@ -88,6 +90,6 @@ jobs:
           # authToken: ${{secrets.GITHUB_TOKEN}}
           context: 'Dockerfile Lint'
           description: "${{ steps.precommit_docker.outcome }}"
-          target-url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.job-id.outputs.job-id }}#step:4:0"
+          target-url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.job-id.outputs.job-id }}#step:11:0"
 
 
