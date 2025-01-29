@@ -58,23 +58,39 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker image
+      - name: Extract services from docker-compose.yml
+        id: extract_services
+        run: |
+          SERVICES=$(yq -r '.services | to_entries | map(select(.value.build)) | map(.key) | join("\n")' docker-compose.yml)
+          echo "SERVICES=${SERVICES}" >> $GITHUB_ENV
+
+      - name: Build and push Docker images
         id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          load: true
-          tags: ghcr.io/${{ github.repository }}/composite:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          repo_basename=$(basename "$GITHUB_REPOSITORY")
+          for service in $SERVICES; do
+            echo "Building and pushing service: $service"
+
+            CONTEXT=$(yq -r ".services[\"$service\"].build" docker-compose.yml)
+
+            docker buildx build \
+              --context "$CONTEXT" \
+              --push \
+              --tag "ghcr.io/${GITHUB_REPOSITORY}/${service}:latest" \
+              --cache-from type=gha \
+              --cache-to type=gha,mode=max
+
+            # Tag the image
+            docker tag "ghcr.io/${GITHUB_REPOSITORY}/${service}:latest" "${repo_basename}_${service}"
+          done
       
       - name: Deploy to balenaCloud
         id: deploy
         run: |
           docker image ls
-          docker tag ${{ steps.build.outputs.imageid }} built-image
-          ./balena-cli/balena deploy "${{ vars.BALENA_FLEET }}" built-image | tee build_output.txt
+          ./balena-cli/balena deploy "${{ vars.BALENA_FLEET }}" | tee build_output.txt
           release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
           echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
         env:
