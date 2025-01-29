@@ -77,7 +77,7 @@ jobs:
           repo_name=$(basename "${GITHUB_REPOSITORY}")
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
-          ./balena-cli/balena build --fleet "$repo_name" --tag "balena-output-image" --debug
+          ./balena-cli/balena build --fleet "$repo_name" --tag "balena-output-image" --cache-from ghcr.io/tamu-edu-students/antique-cactus/balena-cache:latest --debug
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
