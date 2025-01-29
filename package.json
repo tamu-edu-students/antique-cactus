@@ -6,8 +6,10 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\"",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "lint": "jshint src/"
   },
+  "pre-commit": ["lint"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/balena-io-projects/simple-server-node.git"
@@ -29,5 +31,9 @@
   },
   "versionist": {
     "publishedAt": "2024-04-19T17:37:00.549Z"
+  },
+  "devDependencies": {
+    "jshint": "^2.13.6",
+    "pre-commit": "^1.2.2"
   }
 }

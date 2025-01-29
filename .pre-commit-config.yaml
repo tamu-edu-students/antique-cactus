@@ -1,0 +1,21 @@
+repos:
+- repo: https://github.com/hadolint/hadolint
+  rev: v2.12.0
+  hooks:
+  - id: hadolint
+
+- repo: local
+  hooks:
+  - id: docker-compose
+    name: Validate docker-compose file
+    entry: bash -c 'output="$(docker compose -f docker-compose.yml config -q 2>&1)"; if [[ -n "$output" ]]; then echo "$output"; exit 1; fi'
+    language: system
+    pass_filenames: false
+
+- repo: local
+  hooks:
+  - id: node
+    name: Run Node.js scripts
+    entry: ./node_modules/pre-commit/hook
+    language: system
+    pass_filenames: false
