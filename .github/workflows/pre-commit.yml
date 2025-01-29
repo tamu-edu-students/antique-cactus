@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      - uses: austenstone/job-id@v1
+        id: job-id
       - uses: actions/setup-node@v4
         with:
           node-version: '23'
@@ -70,7 +71,7 @@ jobs:
           STEPS_CONTEXT: ${{ toJson(steps) }}
         run: |
           STEP_NUM=$(echo "$STEPS_CONTEXT" | jq -r --arg STEP_ID "$STEP_ID" 'keys | to_entries | map(select(.value == $STEP_ID)) | .[].key + 1')
-          echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}#step:$STEP_NUM:0" >> $GITHUB_OUTPUT
+          echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.job-id.outputs.job-id }}#step:$STEP_NUM:0" >> $GITHUB_OUTPUT
           
       - name: Report Dockerfile Status # You would run your tests before this using the output to set state/desc
         uses: hkusu/status-create-action@v1.0.1
