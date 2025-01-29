@@ -63,6 +63,14 @@ jobs:
         with:
           dockerfile: Dockerfile
           
+      - name: Get Dockerfile Reference
+        id: precommit_docker_ref
+        env:
+          STEP_ID: "precommit_docker"
+        run: |
+          STEP_NUM=$(echo ${{ steps }} | jq -r --arg STEP_ID "$STEP_ID" 'keys | to_entries | map(select(.value == $STEP_ID)) | .[].key + 1')
+          echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}#step:$STEP_NUM:0" >> $GITHUB_OUTPUT
+          
       - name: Report Dockerfile Status # You would run your tests before this using the output to set state/desc
         uses: hkusu/status-create-action@v1.0.1
         with:
@@ -70,6 +78,7 @@ jobs:
           state: ${{ steps.precommit_docker.outcome }}
           # authToken: ${{secrets.GITHUB_TOKEN}}
           context: 'Dockerfile Lint'
-          description: ${{ env.HADOLINT_RESULTS }}
+          # description: ${{ env.HADOLINT_RESULTS }}
+          target-url: ${{ steps.precommit_docker_ref.outputs.url }}
 
 
