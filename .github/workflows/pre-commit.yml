@@ -21,7 +21,6 @@ jobs:
           # options to pass to pre-commit run
           extra_args: node --all-files
           
-
       - name: Report Node Status # You would run your tests before this using the output to set state/desc
         uses: clstrickland/create-status-check@main
         with:
