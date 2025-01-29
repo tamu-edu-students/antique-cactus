@@ -55,16 +55,12 @@ jobs:
           state: ${{ steps.precommit_docker_compose.outcome }}
           sha: ${{github.event.pull_request.head.sha || github.sha}}
       
-      
-      - name: Pre-Commit Dockerfile Check
+
+      - uses: hadolint/hadolint-action@v3.1.0
         id: precommit_docker
-        # You may pin to the exact commit or the version.
-        # uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd
-        uses: pre-commit/action@v3.0.1
         continue-on-error: true
         with:
-          # options to pass to pre-commit run
-          extra_args: hadolint --all-files
+          dockerfile: Dockerfile
           
       - name: Report Dockerfile Status # You would run your tests before this using the output to set state/desc
         uses: clstrickland/create-status-check@main
