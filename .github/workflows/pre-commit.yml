@@ -37,7 +37,13 @@ jobs:
           target-url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.job-id.outputs.job-id }}#step:7:0"
 
       
-      
+      - name: Docker Setup Compose
+        # You may pin to the exact commit or the version.
+        # uses: docker/setup-compose-action@28f42ef356a3fdbfdadbabd8452c73c5093c5b28
+        uses: docker/setup-compose-action@v1.0.0
+        with:
+          # Compose version. (eg. v2.32.4)
+          version: v1.27.0 # force older version that doesn't have v2.4 compose files          
       
       - name: Pre-Commit Docker Compose Check
         id: precommit_docker_compose
