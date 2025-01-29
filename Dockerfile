@@ -37,7 +37,7 @@ COPY package*.json ./
 RUN npm install --omit=dev --unsafe-perm --no-audit && npm cache verify
 # COPY . ./
 # RUN npm run build
-
+BAD LINE
 # Stage 2: Run
 FROM balenalib/aarch64-node:20-run
 WORKDIR /app
