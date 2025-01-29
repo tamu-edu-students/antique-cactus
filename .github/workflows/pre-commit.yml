@@ -23,7 +23,7 @@ jobs:
           
 
       - name: Report Node Status # You would run your tests before this using the output to set state/desc
-        uses: clstrickland/create-status-check@v2
+        uses: clstrickland/create-status-check
         with:
           authToken: ${{secrets.GITHUB_TOKEN}}
           context: 'Test run'
