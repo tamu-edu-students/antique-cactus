@@ -64,6 +64,9 @@ jobs:
           SERVICES=$(yq -r '.services | to_entries | map(select(.value.build)) | map(.key) | join("\n")' docker-compose.yml)
           echo "SERVICES=${SERVICES}" >> $GITHUB_ENV
 
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v3
+
       - name: Build and push Docker images
         id: build
         env:
@@ -71,6 +74,7 @@ jobs:
         run: |
           repo_basename=$(basename "$GITHUB_REPOSITORY")
           for service in $SERVICES; do
+            echo "::group::Build $service"
             echo "Building and pushing service: $service"
 
             CONTEXT=$(yq -r ".services[\"$service\"].build" docker-compose.yml)
@@ -85,6 +89,7 @@ jobs:
 
             # Tag the image
             docker tag "ghcr.io/${GITHUB_REPOSITORY}/${service}:latest" "${repo_basename}_${service}"
+            echo "::endgroup::"
           done
       
       - name: Deploy to balenaCloud
