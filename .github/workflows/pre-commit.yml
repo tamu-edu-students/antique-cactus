@@ -70,6 +70,7 @@ jobs:
           STEP_ID: "precommit_docker"
           STEPS_CONTEXT: ${{ toJson(steps) }}
         run: |
+          echo "$STEPS_CONTEXT"
           STEP_NUM=$(echo "$STEPS_CONTEXT" | jq -r --arg STEP_ID "$STEP_ID" 'keys | to_entries | map(select(.value == $STEP_ID)) | .[].key + 1')
           echo "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.job-id.outputs.job-id }}#step:$STEP_NUM:0" >> $GITHUB_OUTPUT
           
