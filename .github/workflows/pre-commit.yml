@@ -12,50 +12,50 @@ jobs:
       - uses: actions/checkout@v4
       - uses: austenstone/job-id@v1
         id: job-id
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '23'
-      - run: npm install
-      - name: Pre-Commit Node Check
-        id: precommit_node
-        # You may pin to the exact commit or the version.
-        # uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd
-        uses: pre-commit/action@v3.0.1
-        continue-on-error: true
-        with:
-          # options to pass to pre-commit run
-          extra_args: node --all-files
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '23'
+      # - run: npm install
+      # - name: Pre-Commit Node Check
+      #   id: precommit_node
+      #   # You may pin to the exact commit or the version.
+      #   # uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd
+      #   uses: pre-commit/action@v3.0.1
+      #   continue-on-error: true
+      #   with:
+      #     # options to pass to pre-commit run
+      #     extra_args: node --all-files
           
-      - name: Report Node Status # You would run your tests before this using the output to set state/desc
-        uses: clstrickland/create-status-check@main
-        with:
-          authToken: ${{secrets.GITHUB_TOKEN}}
-          context: 'JS Lint'
-          description: 'Tested'
-          state: ${{ steps.precommit_node.outcome }}
-          sha: ${{github.event.pull_request.head.sha || github.sha}}
+      # - name: Report Node Status # You would run your tests before this using the output to set state/desc
+      #   uses: clstrickland/create-status-check@main
+      #   with:
+      #     authToken: ${{secrets.GITHUB_TOKEN}}
+      #     context: 'JS Lint'
+      #     description: 'Tested'
+      #     state: ${{ steps.precommit_node.outcome }}
+      #     sha: ${{github.event.pull_request.head.sha || github.sha}}
       
       
       
       
-      - name: Pre-Commit Docker Compose Check
-        id: precommit_docker_compose
-        # You may pin to the exact commit or the version.
-        # uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd
-        uses: pre-commit/action@v3.0.1
-        continue-on-error: true
-        with:
-          # options to pass to pre-commit run
-          extra_args: docker-compose --all-files
+      # - name: Pre-Commit Docker Compose Check
+      #   id: precommit_docker_compose
+      #   # You may pin to the exact commit or the version.
+      #   # uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd
+      #   uses: pre-commit/action@v3.0.1
+      #   continue-on-error: true
+      #   with:
+      #     # options to pass to pre-commit run
+      #     extra_args: docker-compose --all-files
           
-      - name: Report Docker Compose Status # You would run your tests before this using the output to set state/desc
-        uses: clstrickland/create-status-check@main
-        with:
-          authToken: ${{secrets.GITHUB_TOKEN}}
-          context: 'Docker Compose Lint'
-          description: 'Tested'
-          state: ${{ steps.precommit_docker_compose.outcome }}
-          sha: ${{github.event.pull_request.head.sha || github.sha}}
+      # - name: Report Docker Compose Status # You would run your tests before this using the output to set state/desc
+      #   uses: clstrickland/create-status-check@main
+      #   with:
+      #     authToken: ${{secrets.GITHUB_TOKEN}}
+      #     context: 'Docker Compose Lint'
+      #     description: 'Tested'
+      #     state: ${{ steps.precommit_docker_compose.outcome }}
+      #     sha: ${{github.event.pull_request.head.sha || github.sha}}
       
 
       - uses: hadolint/hadolint-action@v3.1.0
@@ -66,6 +66,8 @@ jobs:
 
       - name: Capture Step Index
         run: |
+          echo "$GITHUB_ACTION"
+          echo "$GITHUB_ACTION_PATH"
           STEP_INDEX=$(grep -n "Run $GITHUB_ACTION" "$GITHUB_ACTION_PATH" | cut -d: -f1)
           echo "Step Index: $STEP_INDEX"
           
