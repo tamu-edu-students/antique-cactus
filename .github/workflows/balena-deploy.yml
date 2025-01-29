@@ -104,6 +104,7 @@ jobs:
       #     docker push ghcr.io/${{ github.repository }}/balena-cache:latest
       #     echo "image_id=$image" >> $GITHUB_OUTPUT
 
+
       - name: Deploy to balenaCloud
         id: deploy
         run: |
