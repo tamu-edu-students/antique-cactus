@@ -1,0 +1,32 @@
+name: 'test'
+on: # run on any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pre-Commit Node Check
+        id: precommit_node
+        # You may pin to the exact commit or the version.
+        # uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd
+        uses: pre-commit/action@v3.0.1
+        continue-on-error: true
+        with:
+          # options to pass to pre-commit run
+          extra_args: node --all-files
+          
+
+      - name: Report Node Status # You would run your tests before this using the output to set state/desc
+        uses: mapbox/create-status-check@v1
+        with:
+          authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'Test run'
+          description: 'Passed'
+          state: ${{ steps.precommit_node.outcome }}
+          sha: ${{github.event.pull_request.head.sha || github.sha}}
