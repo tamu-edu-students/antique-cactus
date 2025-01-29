@@ -43,7 +43,7 @@ jobs:
         uses: docker/setup-compose-action@v1.0.0
         with:
           # Compose version. (eg. v2.32.4)
-          version: v1.27.0 # force older version that doesn't have v2.4 compose files          
+          version: 1.27.0 # force older version that doesn't have v2.4 compose files          
       
       - name: Pre-Commit Docker Compose Check
         id: precommit_docker_compose
