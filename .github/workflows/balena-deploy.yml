@@ -60,12 +60,14 @@ jobs:
           repo_name=$(basename "${GITHUB_REPOSITORY}")
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
-          ./balena-cli/balena build --fleet "$repo_name" --tag "ghcr.io/${{ github.repository }}/balena-cache:latest"
+          ./balena-cli/balena build --fleet "$repo_name" --tag "balena-output-image"
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Push updated cache to GitHub Container Registry
         run: |
+          image = $(docker images --format json | jq 'select(.Tag == "balena-output-image").Repository')
+          docker tag $image:balena-output-image ghcr.io/${{ github.repository }}/balena-cache:latest
           docker push ghcr.io/${{ github.repository }}/balena-cache:latest
 
       - name: Deploy to balenaCloud
