@@ -54,20 +54,20 @@ jobs:
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Create Registry Secrets File
-        id: repo_secrets_file
-        run: |
-          cat > secrets.yml <<EOF
-          ghcr.io:
-            username: "${{ github.actor }}"
-            password: "${{ secrets.GITHUB_TOKEN }}"
-          EOF
+      # - name: Create Registry Secrets File
+      #   id: repo_secrets_file
+      #   run: |
+      #     cat > secrets.yml <<EOF
+      #     ghcr.io:
+      #       username: "${{ github.actor }}"
+      #       password: "${{ secrets.GITHUB_TOKEN }}"
+      #     EOF
 
-      - name: Pull Cache Images
-        id: pull_cache
-        run: |
-          docker pull ghcr.io/${{ github.repository }}/balena-cache:latest
-          docker tag ghcr.io/${{ github.repository }}/balena-cache:latest antique-cactus_balena-hello-world:balena-output-image
+      # - name: Pull Cache Images
+      #   id: pull_cache
+      #   run: |
+      #     docker pull ghcr.io/${{ github.repository }}/balena-cache:latest
+      #     docker tag ghcr.io/${{ github.repository }}/balena-cache:latest antique-cactus_balena-hello-world:balena-output-image
 
           
 
@@ -77,23 +77,38 @@ jobs:
           repo_name=$(basename "${GITHUB_REPOSITORY}")
           echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
           echo "Using fleet $repo_name"
-          ./balena-cli/balena build --fleet "$repo_name" --tag "balena-output-image" --cache-from ghcr.io/tamu-edu-students/antique-cactus/balena-cache:latest --debug
+          docker build --cache-from type=gha --cache-to type=gha,mode=max --tag balena-image:latest .
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
+      # - name: Build Container
+      #   id: build
+      #   run: |
+      #     repo_name=$(basename "${GITHUB_REPOSITORY}")
+      #     echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
+      #     echo "Using fleet $repo_name"
+      #     ./balena-cli/balena build --fleet "$repo_name" --tag "balena-output-image" --cache-from ghcr.io/tamu-edu-students/antique-cactus/balena-cache:latest --debug
+      #   env:
+      #     GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Push updated cache to GitHub Container Registry
         id: push_ghcr
         run: |
-          image=$(docker images --format json | jq -r 'select(.Tag == "balena-output-image").Repository')
-          docker tag $image:balena-output-image ghcr.io/${{ github.repository }}/balena-cache:latest
+          docker tag balena-image:latest ghcr.io/${{ github.repository }}/balena-cache:latest
           docker push ghcr.io/${{ github.repository }}/balena-cache:latest
-          echo "image_id=$image" >> $GITHUB_OUTPUT
+
+      # - name: Push updated cache to GitHub Container Registry
+      #   id: push_ghcr
+      #   run: |
+      #     image=$(docker images --format json | jq -r 'select(.Tag == "balena-output-image").Repository')
+      #     docker tag $image:balena-output-image ghcr.io/${{ github.repository }}/balena-cache:latest
+      #     docker push ghcr.io/${{ github.repository }}/balena-cache:latest
+      #     echo "image_id=$image" >> $GITHUB_OUTPUT
 
       - name: Deploy to balenaCloud
         id: deploy
         run: |
           repo_name=${{ steps.build.outputs.repo_name }}
-          ./balena-cli/balena deploy "$repo_name" ${{ steps.push_ghcr.outputs.image_id }}:balena-output-image | tee build_output.txt
+          ./balena-cli/balena deploy "$repo_name" balena-image:latest | tee build_output.txt
           release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
           echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
         env:
