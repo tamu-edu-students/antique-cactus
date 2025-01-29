@@ -89,7 +89,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}/composite:latest
+          tags: ghcr.io/${{ github.repository }}/composite:latest,built-image
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
@@ -122,7 +122,7 @@ jobs:
         id: deploy
         run: |
           repo_name=$(basename "${GITHUB_REPOSITORY}")
-          ./balena-cli/balena deploy "$repo_name" ghcr.io/${{ github.repository }}/composite:latest | tee build_output.txt
+          ./balena-cli/balena deploy "$repo_name" built-image | tee build_output.txt
           release_hash=$(grep -oP '(?<=\[Success\] Release: )\w+' build_output.txt)
           echo "release_hash=$release_hash" >> $GITHUB_OUTPUT
         env:
