@@ -76,11 +76,11 @@ jobs:
             CONTEXT=$(yq -r ".services[\"$service\"].build" docker-compose.yml)
 
             docker buildx build \
-              --context "$CONTEXT" \
               --push \
               --tag "ghcr.io/${GITHUB_REPOSITORY}/${service}:latest" \
               --cache-from type=gha \
-              --cache-to type=gha,mode=max
+              --cache-to type=gha,mode=max \
+              "$CONTEXT"
 
             # Tag the image
             docker tag "ghcr.io/${GITHUB_REPOSITORY}/${service}:latest" "${repo_basename}_${service}"
