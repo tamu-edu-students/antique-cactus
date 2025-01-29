@@ -64,12 +64,12 @@ jobs:
           dockerfile: Dockerfile
           
       - name: Report Dockerfile Status # You would run your tests before this using the output to set state/desc
-        uses: clstrickland/create-status-check@main
+        uses: hkusu/status-create-action@v1.0.1
         with:
-          authToken: ${{secrets.GITHUB_TOKEN}}
-          context: 'Dockerfile Lint'
-          description: 'Tested'
-          state: ${{ steps.precommit_docker.outcome }}
           sha: ${{github.event.pull_request.head.sha || github.sha}}
+          state: ${{ steps.precommit_docker.outcome }}
+          # authToken: ${{secrets.GITHUB_TOKEN}}
+          context: 'Dockerfile Lint'
+          description: ${{ env.HADOLINT_RESULTS }}
 
 
